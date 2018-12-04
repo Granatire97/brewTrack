@@ -1,0 +1,39 @@
+{% extends "bar/base.html" %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <div>
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+            <div class="uk-card-header">
+                <h1 class="uk-card-title uk-margin-remove-bottom">{{bar.name}} Event</h1>
+            </div>
+
+            <ul class="uk-list uk-list-divider">
+                {% for event in events %}
+                <li class="uk-animation-fade">
+                    <h3 class="uk-margin-top uk-margin-remove-bottom">
+                        {{ event.name }}
+
+                        <form id="delete-event" action="{% url 'bar:delete_event' event.id%}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="event.id" value="{{event.id}}">
+                            <a class="trash-button uk-align-right" onclick="document.getElementById('delete-event').submit();" uk-icon="trash"></a>
+                        </form>
+                        <a class="uk-align-right" uk-icon="settings" href="{% url 'bar:update_event' event.id%}"></a>
+                    </h3>
+                    <div>{{event.type}}</div>
+                    <div><span uk-icon="calendar"></span>{{event.date}}</div>
+                    <div class="">{{event.description}}</div>
+                </li>
+                <br />
+
+                {% endfor %}
+            </ul>
+
+
+        </div>
+    </div>
+    {% else %}
+    <h1>Access Denied</h1>
+{% endif %}
+{% endblock content %}

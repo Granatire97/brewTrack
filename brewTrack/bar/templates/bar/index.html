@@ -1,0 +1,85 @@
+{% extends "bar/base.html" %}
+
+{% block content %}
+<style>
+    #map {
+        margin-top: 25px;
+        height: 60vh;
+        width: 100%;
+    }
+</style>
+<div class="uk-grid-small uk-grid-match uk-child-width-1-2@m" uk-grid>
+    <div>
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+            <div class="uk-card-header">
+                <h1 class="uk-card-title uk-margin-remove-bottom">Local Bars</h1>
+            </div>
+
+                <div class="scrollable" style="height: 62.5vh;">
+                    {% if bar_list %}
+                    <ul class="uk-list uk-list-divider">
+                        {% for bar in bar_list %}
+                        <li class="uk-animation-fade">
+                            <h3 class="uk-margin-top">
+                                <a href="{% url 'bar:bar' bar.id %}">{{ bar.name }}</a>
+                            </h3>
+                            <div><span uk-icon="location"></span>{{bar.location}}</div>
+                            <div><span uk-icon="calendar"></span>{{bar.hours}}</div>
+                        </li>
+                        <br />
+
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No bars :(</p>
+                    {% endif %}
+                </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+            <div class="uk-card-header">
+                <h1 class="uk-card-title">Map</h1>
+            </div>
+            <div id="map" class="uk-animation-fade"></div>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
+<link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css"/>
+
+<script>
+  barList = []
+  L.mapquest.key = 'DRWqawOaON9BhBAg7SLazItfXHWdk9Dq';
+
+  var map = L.mapquest.map('map', {
+    center: [40.7934, -77.8600],
+    layers: L.mapquest.tileLayer('map'),
+    zoom: 16
+  });
+
+  {% for bar in bar_list %}
+    $.get( "http://www.mapquestapi.com/geocoding/v1/address?key=DRWqawOaON9BhBAg7SLazItfXHWdk9Dq&location=" + "{{bar.location}}", function( data ) {
+      barList.push({"name":'{{bar.name}}', "lat": data.results[0].locations[0].latLng.lat, "lng": data.results[0].locations[0].latLng.lng})
+
+      L.mapquest.textMarker([data.results[0].locations[0].latLng.lat, data.results[0].locations[0].latLng.lng], {
+      text: '{{bar.name}}',
+      position: 'center',
+      type: 'marker',
+      icon: {
+      primaryColor: '#333333',
+      secondaryColor: '#333333',
+      size: 'sm'
+      }
+      }).addTo(map);
+
+    });
+  {% endfor %}
+
+  </script>
+
+{% endblock content %}
